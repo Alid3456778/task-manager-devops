@@ -1,0 +1,198 @@
+name: CI/CD Pipeline
+
+# When to run this workflow
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Environment variables
+env:
+  NODE_VERSION: '18'
+  MONGODB_URI: 'mongodb://localhost:27017/taskmanager-test'
+
+jobs:
+  # Job 1: Test and Build
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    # Service containers for MongoDB
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    # Step 1: Checkout code
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Setup Node.js
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    # Step 3: Install dependencies
+    - name: 📦 Install dependencies
+      run: npm ci
+
+    # Step 4: Run linting (code quality check)
+    - name: 🔍 Run ESLint
+      run: |
+        # Install ESLint if not already installed
+        npm install --save-dev eslint
+        # Create basic ESLint config
+        echo '{
+          "env": {
+            "node": true,
+            "es2021": true
+          },
+          "extends": "eslint:recommended",
+          "parserOptions": {
+            "ecmaVersion": 12,
+            "sourceType": "module"
+          },
+          "rules": {
+            "no-unused-vars": "warn",
+            "no-console": "off"
+          }
+        }' > .eslintrc.json
+        # Run ESLint
+        npx eslint server.js --fix
+
+    # Step 5: Run security audit
+    - name: 🔒 Security audit
+      run: npm audit --audit-level=high
+
+    # Step 6: Start application and test
+    - name: 🚀 Start application
+      run: |
+        # Start the application in background
+        npm start &
+        APP_PID=$!
+        
+        # Wait for application to start
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:3000/health || exit 1
+        
+        # Test API endpoints
+        curl -f http://localhost:3000/api/tasks || exit 1
+        
+        # Kill the application
+        kill $APP_PID
+      env:
+        NODE_ENV: test
+        MONGODB_URI: ${{ env.MONGODB_URI }}
+
+    # Step 7: Test API endpoints more thoroughly
+    - name: 🧪 API Integration Tests
+      run: |
+        # Start the application in background
+        npm start &
+        APP_PID=$!
+        
+        # Wait for application to start
+        sleep 10
+        
+        # Test creating a task
+        curl -X POST http://localhost:3000/api/tasks \
+          -H "Content-Type: application/json" \
+          -d '{"title":"Test Task","description":"CI/CD Test","priority":"high"}' \
+          || exit 1
+        
+        # Test getting tasks
+        curl -f http://localhost:3000/api/tasks || exit 1
+        
+        # Kill the application
+        kill $APP_PID
+      env:
+        NODE_ENV: test
+        MONGODB_URI: ${{ env.MONGODB_URI }}
+
+    # Step 8: Build artifacts (if needed)
+    - name: 📋 Generate build info
+      run: |
+        echo "Build completed at: $(date)" > build-info.txt
+        echo "Git commit: ${{ github.sha }}" >> build-info.txt
+        echo "Branch: ${{ github.ref_name }}" >> build-info.txt
+        echo "Node version: $(node --version)" >> build-info.txt
+        echo "NPM version: $(npm --version)" >> build-info.txt
+        cat build-info.txt
+
+    # Step 9: Upload build artifacts
+    - name: 📤 Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-info
+        path: build-info.txt
+
+  # Job 2: Code Quality Analysis
+  code-quality:
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: 📦 Install dependencies
+      run: npm ci
+
+    - name: 📊 Code complexity analysis
+      run: |
+        # Install complexity analysis tool
+        npm install --save-dev complexity-report
+        echo "Analyzing code complexity..."
+        npx cr --format json server.js > complexity-report.json || true
+        echo "Complexity analysis completed"
+
+    - name: 📈 Bundle size analysis
+      run: |
+        # Check package.json size and dependencies
+        echo "Package.json analysis:"
+        wc -l package.json
+        echo "Dependencies count:"
+        npm list --depth=0
+
+  # Job 3: Deployment simulation
+  deploy-simulation:
+    runs-on: ubuntu-latest
+    needs: [test-and-build, code-quality]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🚀 Simulate deployment
+      run: |
+        echo "🚀 Simulating deployment to staging environment..."
+        echo "✅ Application would be deployed to: https://task-manager-staging.example.com"
+        echo "✅ Health check would be performed"
+        echo "✅ Database migrations would run"
+        echo "✅ Deployment completed successfully!"
+
+    - name: 📊 Deployment summary
+      run: |
+        echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
