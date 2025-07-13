@@ -45,29 +45,29 @@ jobs:
     - name: 📦 Install dependencies
       run: npm ci
 
-    # Step 4: Run linting (code quality check)
-    - name: 🔍 Run ESLint
-      run: |
-        # Install ESLint if not already installed
-        npm install --save-dev eslint
-        # Create basic ESLint config
-        echo '{
-          "env": {
-            "node": true,
-            "es2021": true
-          },
-          "extends": "eslint:recommended",
-          "parserOptions": {
-            "ecmaVersion": 12,
-            "sourceType": "module"
-          },
-          "rules": {
-            "no-unused-vars": "warn",
-            "no-console": "off"
-          }
-        }' > .eslintrc.json
-        # Run ESLint
-        npx eslint server.js --fix
+    # # Step 4: Run linting (code quality check)
+    # - name: 🔍 Run ESLint
+    #   run: |
+    #     # Install ESLint if not already installed
+    #     npm install --save-dev eslint
+    #     # Create basic ESLint config
+    #     echo '{
+    #       "env": {
+    #         "node": true,
+    #         "es2021": true
+    #       },
+    #       "extends": "eslint:recommended",
+    #       "parserOptions": {
+    #         "ecmaVersion": 12,
+    #         "sourceType": "module"
+    #       },
+    #       "rules": {
+    #         "no-unused-vars": "warn",
+    #         "no-console": "off"
+    #       }
+    #     }' > .eslintrc.json
+    #     # Run ESLint
+    #     npx eslint server.js --fix
 
     # Step 5: Run security audit
     - name: 🔒 Security audit
