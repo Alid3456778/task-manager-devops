@@ -106,13 +106,23 @@ jobs:
         sleep 10
         
         # Test creating a task
+        echo "Testing POST /api/tasks..."
         curl -X POST http://localhost:3000/api/tasks \
-          -H "Content-Type: application/json" \
-          -d '{"title":"Test Task","description":"CI/CD Test","priority":"high"}' \
-          || exit 1
+        -H "Content-Type: application/json" \
+        -d '{"title":"Test Task","description":"CI/CD Test","priority":"high"}' || {
+        echo "❌ Failed to create task"
+        cat app.log
+        kill $APP_PID
+        exit 1
+        }
         
-        # Test getting tasks
-        curl -f http://localhost:3000/api/tasks || exit 1
+        echo "Testing GET /api/tasks..."
+        curl -f http://localhost:3000/api/tasks || {
+        echo "❌ Failed to fetch tasks"
+        cat app.log
+        kill $APP_PID
+        exit 1
+        }
         
         # Kill the application
         kill $APP_PID
