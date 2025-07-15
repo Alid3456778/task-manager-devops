@@ -112,7 +112,7 @@ jobs:
         -d '{"title":"Test Task","description":"CI/CD Test","priority":"high"}' || {
         echo "❌ Failed to create task"
         cat app.log
-        kill $APP_PID
+        kill $APP_PID || true
         exit 1
         }
         
@@ -120,12 +120,12 @@ jobs:
         curl -f http://localhost:3000/api/tasks || {
         echo "❌ Failed to fetch tasks"
         cat app.log
-        kill $APP_PID
+        kill $APP_PID || true
         exit 1
         }
         
         # Kill the application
-        kill $APP_PID
+        kill $APP_PID || true
       env:
         NODE_ENV: test
         MONGODB_URI: ${{ env.MONGODB_URI }}
