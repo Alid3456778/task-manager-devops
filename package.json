@@ -13,16 +13,23 @@
     "build": "echo 'Build completed' && node -e 'console.log(\"Build info:\", {timestamp: new Date().toISOString(), node: process.version})'",
     "postinstall": "echo 'Dependencies installed successfully'"
   },
-  "keywords": ["nodejs", "express", "mongodb", "devops"],
+  "keywords": [
+    "nodejs",
+    "express",
+    "mongodb",
+    "devops"
+  ],
   "author": "DevOps Student",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0"
   },
   "devDependencies": {
+    "eslint": "^9.31.0",
+    "jest": "^30.0.4",
     "nodemon": "^3.0.1"
   }
 }
