@@ -129,7 +129,7 @@ jobs:
         # Kill the application
         kill $APP_PID || true
       env:
-        NODE_ENV: test
+        NODE_ENV: test npm test
         MONGODB_URI: ${{ env.MONGODB_URI }}
 
     # Step 8: Build artifacts (if needed)
