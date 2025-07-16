@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: taskmanager-app
+    env: docker
+    plan: free
+    branch: main
+    dockerfilePath: Dockerfile
+    buildCommand: ""
+    startCommand: "node server.js"
+    envVars:
+      - key: MONGODB_URI
+        value: Replace-this-with-your-Render-DB-URL
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
