@@ -10,7 +10,7 @@ on:
 # Environment variables
 env:
   NODE_VERSION: '18'
-  MONGODB_URI: 'mongodb://localhost:27017/taskmanager-test'
+  MONGODB_URI: 'mongodb+srv://sunbreathing13form:Pimse123@cluster0.ny9by.mongodb.net/taskmanager'
 
 jobs:
 
@@ -149,13 +149,7 @@ jobs:
         name: build-info
         path: build-info.txt
 
-    - name: 🚀 Deploy to Render (if tests passed)
-      if: success()
-      run: |
-         curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }} \
-         -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
-         -H 'Accept: application/json' \
-         -H 'Content-Type: application/json'
+    
 
   # Job 2: Code Quality Analysis
   code-quality:
@@ -201,20 +195,28 @@ jobs:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
 
-    - name: 🚀 Simulate deployment
-      run: |
-        echo "🚀 Simulating deployment to staging environment..."
-        echo "✅ Application would be deployed to: https://task-manager-staging.example.com"
-        echo "✅ Health check would be performed"
-        echo "✅ Database migrations would run"
-        echo "✅ Deployment completed successfully!"
+    # - name: 🚀 Simulate deployment
+    #   run: |
+    #     echo "🚀 Simulating deployment to staging environment..."
+    #     echo "✅ Application would be deployed to: https://task-manager-staging.example.com"
+    #     echo "✅ Health check would be performed"
+    #     echo "✅ Database migrations would run"
+    #     echo "✅ Deployment completed successfully!"
 
-    - name: 📊 Deployment summary
+    # - name: 📊 Deployment summary
+    #   run: |
+    #     echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Version**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+    #     echo "- **Status**: ✅ Success" >> $
+        
+    - name: 🚀 Deploy to Render (if tests passed)
+      if: success()
       run: |
-        echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
-        echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
-        echo "- **Version**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+         curl -X POST https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }} \
+         -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
+         -H 'Accept: application/json' \
+         -H 'Content-Type: application/json'
   
   
