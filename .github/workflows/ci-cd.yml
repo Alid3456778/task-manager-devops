@@ -94,7 +94,7 @@ jobs:
         # Kill the application
         kill $APP_PID
       env:
-        NODE_ENV: test
+        NODE_ENV: test npm test
         MONGODB_URI: ${{ env.MONGODB_URI }}
 
     # Step 7: Test API endpoints more thoroughly
